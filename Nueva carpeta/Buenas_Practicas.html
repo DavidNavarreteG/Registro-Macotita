@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Mascota</title>
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f1f1f1;
+    }
+    .inicio {
+      height: 100vh;
+      background: linear-gradient(135deg, #4a47ff, #eede04);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .inicio h1 { font-size: 3em; margin-bottom: 20px; }
+    .inicio button {
+      background-color: #ff9800; color: white; border: none;
+      padding: 15px 30px; font-size: 1.2em; border-radius: 8px; cursor: pointer;
+    }
+    .inicio button:hover { background-color: #e60000; }
+
+    .container {
+      max-width: 600px; margin: auto; background: white;
+      padding: 30px; box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border-radius: 12px; margin-top: 50px;
+    }
+
+    section { margin-bottom: 30px; }
+    h2 { text-align: center; }
+    label {
+      display: block; margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%; padding: 10px;
+      border-radius: 6px; border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #2196f3; color: white; border: none;
+      padding: 12px 20px; border-radius: 6px;
+      font-size: 1em; cursor: pointer; display: block; margin: 20px auto 0;
+    }
+    button:hover { background-color: #1976d2; }
+
+    .error {
+      color: red; font-size: 0.9em;
+      display: none; margin-bottom: 10px;
+    }
+
+    .success {
+      text-align: center;
+      color: green;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="inicio" id="inicio">
+    <h1>Registro de Mascota</h1>
+    <button onclick="document.getElementById('formulario-container').scrollIntoView({behavior:'smooth'})">Comenzar Registro</button>
+  </div>
+
+  <div class="container" id="formulario-container">
+    <form id="formulario">
+
+      <!-- Datos Mascota -->
+      <section id="datos-mascota">
+        <h2>Datos de la Mascota</h2>
+
+        <label for="nombre-mascota">Nombre</label>
+        <input type="text" id="nombre-mascota" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ ]+" title="Solo letras y espacios">
+        <div id="error-nombre-mascota" class="error">Solo se permiten letras y espacios.</div>
+
+        <label for="fecha-nacimiento">Fecha de nacimiento</label>
+        <input type="date" id="fecha-nacimiento" required>
+
+        <label for="edad">Edad</label>
+        <input type="text" id="edad" readonly>
+
+        <label for="especie">Especie</label>
+        <select id="especie" required onchange="actualizarRazas()">
+          <option value="">Seleccione</option>
+          <option value="Perro">Perro</option>
+          <option value="Gato">Gato</option>
+          <option value="Ave">Ave</option>
+          <option value="Conejo">Conejo</option>
+          <option value="Hámster">Hámster</option>
+          <option value="Reptil">Reptil</option>
+          <option value="Pez">Pez</option>
+          <option value="Otro">Otro</option>
+        </select>
+
+        <label for="raza">Raza</label>
+        <select id="raza" required>
+          <option value="">Seleccione especie primero</option>
+        </select>
+
+        <label for="sexo">Sexo</label>
+        <select id="sexo" required>
+          <option value="">Seleccione</option>
+          <option value="Macho">Macho</option>
+          <option value="Hembra">Hembra</option>
+        </select>
+
+        <div id="error-mascota" class="error">Completa todos los campos correctamente.</div>
+        <button type="button" onclick="validarDatosMascota()">Siguiente</button>
+      </section>
+
+      <!-- Datos Dueño -->
+      <section id="datos-dueno">
+        <h2>Datos del Dueño</h2>
+
+        <label for="nombre-dueno">Nombre completo</label>
+        <input type="text" id="nombre-dueno" required pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ ]+" title="Solo letras y espacios">
+        <div id="error-nombre" class="error">Ingresa nombre completo (mínimo nombre y apellido).</div>
+
+        <label for="telefono">Teléfono</label>
+        <input type="tel" id="telefono" required pattern="[0-9]{10}" title="Solo numeros y deben ser 10 dígitos">
+        <div id="error-telefono" class="error">Debe comenzar con 55 o 56 y tener 10 dígitos.</div>
+
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" required>
+        <div id="error-correo" class="error">Solo se permiten correos de gmail, hotmail, yahoo, outlook.</div>
+
+        <button type="submit">Registrar Mascota</button>
+      </section>
+
+    </form>
+
+    <div id="mensaje" class="success" style="display:none;">
+       Tu mejor amigo se registró con éxito 
+    </div>
+  </div>
+
+  <script>
+    const razasPorEspecie = {
+      "Perro": ["Labrador", "Poodle", "Chihuahua", "Bulldog", "Mestizo"],
+      "Gato": ["Persa", "Siames", "Bengala", "Mestizo"],
+      "Ave": ["Perico", "Canario", "Loro", "Cacatúa"],
+      "Conejo": ["Mini rex", "Cabeza de león", "Holandés"],
+      "Hámster": ["Sirio", "Enano ruso", "Roborowski"],
+      "Reptil": ["Iguana", "Camaleón", "Gecko"],
+      "Pez": ["Betta", "Goldfish", "Guppy"],
+      "Otro": ["Desconocida"]
+    };
+
+    function actualizarRazas() {
+      const especie = document.getElementById("especie").value;
+      const razaSelect = document.getElementById("raza");
+      razaSelect.innerHTML = '<option value="">Seleccione</option>';
+      if (especie in razasPorEspecie) {
+        razasPorEspecie[especie].forEach(raza => {
+          const option = document.createElement("option");
+          option.value = raza;
+          option.textContent = raza;
+          razaSelect.appendChild(option);
+        });
+      }
+    }
+
+    document.getElementById("fecha-nacimiento").addEventListener("change", function () {
+      const fecha = new Date(this.value);
+      const hoy = new Date();
+      let años = hoy.getFullYear() - fecha.getFullYear();
+      let meses = hoy.getMonth() - fecha.getMonth();
+      let dias = hoy.getDate() - fecha.getDate();
+      if (dias < 0) { meses--; dias += 30; }
+      if (meses < 0) { años--; meses += 12; }
+      document.getElementById("edad").value = `${años} años, ${meses} meses, ${dias} días`;
+    });
+
+    function validarDatosMascota() {
+      const nombreMascota = document.getElementById("nombre-mascota");
+      const errorNombreMascota = document.getElementById("error-nombre-mascota");
+
+      const campos = ["nombre-mascota", "fecha-nacimiento", "especie", "raza", "sexo"];
+      let valido = true;
+
+      if (!/^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$/.test(nombreMascota.value.trim())) {
+        errorNombreMascota.style.display = "block";
+        valido = false;
+      } else {
+        errorNombreMascota.style.display = "none";
+      }
+
+      campos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (!campo.checkValidity()) valido = false;
+      });
+
+      if (valido) {
+        document.getElementById("error-mascota").style.display = "none";
+        document.getElementById("datos-dueno").scrollIntoView({ behavior: 'smooth' });
+      } else {
+        document.getElementById("error-mascota").style.display = "block";
+      }
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre-dueno").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const dominiosValidos = ["gmail.com", "hotmail.com", "yahoo.com", "outlook.com"];
+
+      let valido = true;
+
+      if (nombre.split(" ").length < 2) {
+        document.getElementById("error-nombre").style.display = "block";
+        valido = false;
+      } else {
+        document.getElementById("error-nombre").style.display = "none";
+      }
+
+      if (!/^5[56]\d{8}$/.test(telefono)) {
+        document.getElementById("error-telefono").style.display = "block";
+        valido = false;
+      } else {
+        document.getElementById("error-telefono").style.display = "none";
+      }
+
+      const dominioCorreo = correo.split("@")[1];
+      if (!dominioCorreo || !dominiosValidos.includes(dominioCorreo.toLowerCase())) {
+        document.getElementById("error-correo").style.display = "block";
+        valido = false;
+      } else {
+        document.getElementById("error-correo").style.display = "none";
+      }
+
+      if (valido) {
+        document.getElementById("mensaje").style.display = "block";
+        document.getElementById("mensaje").scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  </script>
+</body>
+</html>
