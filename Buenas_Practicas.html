@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Mascota</title>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f1f1f1;
+    }
+
+    /* Pantalla completa amarilla */
+    .inicio {
+      height: 100vh;
+      background: linear-gradient(135deg, #4c62db, #ffcc33);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .inicio h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+    }
+
+    .inicio button {
+      background-color: #456da1;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .inicio button:hover {
+      background-color: #e68900;
+    }
+
+    /* Contenedor general */
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      margin-top: 50px;
+    }
+
+    section {
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto 0;
+    }
+
+    button:hover {
+      background-color: #1976d2;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.9em;
+      display: none;
+      margin-bottom: 10px;
+    }
+
+    .success {
+      text-align: center;
+      color: green;
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Pantalla de inicio -->
+  <div class="inicio" id="inicio">
+    <h1>Registro de Mascota</h1>
+    <button onclick="validarInicio()">Comenzar Registro</button>
+  </div>
+
+  <!-- Contenedor del formulario -->
+  <div class="container" id="formulario-container">
+    <form id="formulario">
+
+      <!-- DATOS MASCOTA -->
+      <section id="datos-mascota">
+        <h2>Datos de la Mascota</h2>
+
+        <label for="nombre-mascota">Nombre</label>
+        <input type="text" id="nombre-mascota" required>
+
+        <label for="fecha-nacimiento">Fecha de nacimiento</label>
+        <input type="date" id="fecha-nacimiento" required>
+
+        <label for="edad">Edad</label>
+        <input type="text" id="edad" readonly>
+
+        <label for="especie">Especie</label>
+        <select id="especie" required>
+          <option value="">Seleccione</option>
+          <option value="perro">Perro</option>
+          <option value="gato">Gato</option>
+          <option value="otro">Otro</option>
+        </select>
+
+        <label for="raza">Raza</label>
+        <select id="raza" required>
+          <option value="">Seleccione</option>
+          <option value="mestizo">Mestizo</option>
+          <option value="labrador">Labrador</option>
+          <option value="persa">Persa</option>
+        </select>
+
+        <label for="sexo">Sexo</label>
+        <select id="sexo" required>
+          <option value="">Seleccione</option>
+          <option value="macho">Macho</option>
+          <option value="hembra">Hembra</option>
+        </select>
+
+        <div id="error-mascota" class="error">Por favor completa todos los campos de la mascota.</div>
+
+        <button type="button" onclick="validarDatosMascota()">Siguiente</button>
+      </section>
+
+      <!-- DATOS DUEÑO -->
+      <section id="datos-dueno">
+        <h2>Datos del Dueño</h2>
+
+        <label for="nombre-dueno">Nombre completo</label>
+        <input type="text" id="nombre-dueno" required>
+        <div id="error-nombre" class="error">Ingresa nombre completo (mínimo 2 palabras).</div>
+
+        <label for="telefono">Teléfono (debe iniciar con 55 o 56 y tener 10 dígitos)</label>
+        <input type="tel" id="telefono" required>
+        <div id="error-telefono" class="error">Número inválido.</div>
+
+        <label for="correo">Correo electrónico</label>
+        <input type="email" id="correo" required>
+
+        <button type="submit">Registrar Mascota</button>
+      </section>
+
+    </form>
+
+    <div id="mensaje" class="success" style="display:none;">
+       Tu mejor amigo se registró con éxito 
+    </div>
+  </div>
+
+  <script>
+    // Calcular edad detallada
+    document.getElementById("fecha-nacimiento").addEventListener("change", function () {
+      const fechaNacimiento = new Date(this.value);
+      const hoy = new Date();
+
+      let años = hoy.getFullYear() - fechaNacimiento.getFullYear();
+      let meses = hoy.getMonth() - fechaNacimiento.getMonth();
+      let dias = hoy.getDate() - fechaNacimiento.getDate();
+
+      if (dias < 0) {
+        meses--;
+        dias += new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
+      }
+
+      if (meses < 0) {
+        años--;
+        meses += 12;
+      }
+
+      document.getElementById("edad").value = `${años} años, ${meses} meses, ${dias} días`;
+    });
+
+
+    function validarNombreCompleto(nombre) {
+      return nombre.trim().split(" ").filter(p => p.length > 1).length >= 2;
+    }
+
+    function validarTelefono(telefono) {
+      return /^(55|56)\d{8}$/.test(telefono);
+    }
+
+    function validarInicio() {
+      document.getElementById('formulario-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function validarDatosMascota() {
+      const campos = ["nombre-mascota", "fecha-nacimiento", "especie", "raza", "sexo"];
+      let valido = true;
+
+      campos.forEach(id => {
+        const campo = document.getElementById(id);
+        if (!campo.value) valido = false;
+      });
+
+      if (valido) {
+        document.getElementById("error-mascota").style.display = "none";
+        document.getElementById("datos-dueno").scrollIntoView({ behavior: 'smooth' });
+      } else {
+        document.getElementById("error-mascota").style.display = "block";
+      }
+    }
+
+    document.getElementById("formulario").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const nombre = document.getElementById("nombre-dueno").value;
+      const telefono = document.getElementById("telefono").value;
+
+      let valido = true;
+
+      if (!validarNombreCompleto(nombre)) {
+        document.getElementById("error-nombre").style.display = "block";
+        valido = false;
+      } else {
+        document.getElementById("error-nombre").style.display = "none";
+      }
+
+      if (!validarTelefono(telefono)) {
+        document.getElementById("error-telefono").style.display = "block";
+        valido = false;
+      } else {
+        document.getElementById("error-telefono").style.display = "none";
+      }
+
+      if (valido) {
+        document.getElementById("mensaje").style.display = "block";
+        document.getElementById("mensaje").scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  </script>
+</body>
+</html>
